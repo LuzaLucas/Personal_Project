@@ -1,0 +1,16 @@
+{% load bootstrap4 %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% bootstrap_css %}
+    <title>Products and Stuff</title>
+</head>
+<body>
+    <div class="container">
+        {% block content %}{% endblock content %}
+    </div>
+    {% bootstrap_javascript jquery='full' %}
+</body>
+</html>

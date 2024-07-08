@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+    <div class="container">
+        <h1>Products</h1>
+    </div>
+    
+    <div class="container">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for product in page_obj %}
+                    <tr>
+                        <th scope="row">{{ product.name }}</th>
+                        <th scope="row">{{ product.stock }}</th>
+                        <th scope="row">${{ product.price }}</th><td>
+                            <a class="btn btn-warning" href="{% url "edit_product" product.pk %}">Edit</a>
+                            <a class="btn btn-danger" href="{% url "delete_product" product.pk %}">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% include 'pagination.html' %}
+    </div>
+{% endblock content %}

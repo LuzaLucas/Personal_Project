@@ -9,12 +9,13 @@ from django.contrib.auth.decorators import login_required
 from users.forms.login import LoginForm
 from users.forms.register_form import RegisterForm
 from .models import Profile
+from products.models import Product
 
 
 def register_view(request):
     register_form_data = request.session.get('register_form_data', None)
     form = RegisterForm(register_form_data)
-    return render(request, 'users/pages/register_view.html',
+    return render(request, 'pages/register_view.html',
         context={
             'form': form,
             'form_action': reverse('users:register_create'),
@@ -43,7 +44,7 @@ def register_create(request):
 
 def login_view(request):
     form = LoginForm()
-    return render(request, 'users/pages/login.html',
+    return render(request, 'pages/login.html',
         context={
             'form': form,
             'form_action': reverse('users:login_create')
@@ -91,23 +92,23 @@ def logout_view(request):
 
 # TODO: CRIAR A DASHBOARD VIEW E OS TEMPLATES; LEMBRAR QUE O UNICO LOCAL ONDE 
 # 'USERS' VIROU 'AUTHOR'
-# @login_required(login_url='users:login', redirect_field_name='next')
-# def dashboard(request):
-#     products = Product.objects.filter( 
-#         is_published=False, 
-#         author=request.User,
-#     )
+@login_required(login_url='users:login', redirect_field_name='next')
+def dashboard(request):
+    products = Product.objects.filter( 
+        is_published=False, 
+        author=request.User,
+    )
     
-#     return render(
-#         request, 'users/pages/dashboard.html',
-#         context={
-#             'products': products
-#         }
-#     )
+    return render(
+        request, 'pages/dashboard.html',
+        context={
+            'products': products,
+        }
+    )
     
 
 class ProfileView(TemplateView):
-    template_name = 'users/pages/profile.html'
+    template_name = 'pages/profile.html'
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)

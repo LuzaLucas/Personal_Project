@@ -5,12 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% bootstrap_css %}
-    <title>Products and Stuff</title>
+    <title>
+        {% block title %}{% endblock %} Produtcs
+    </title>
 </head>
-<body>
-    <div class="container">
+<body class="d-flex flex-column min-vh-100 bg-light" style="background-color: #f8f9fa;">
+    {% include 'global/partials/header.html' %}
+    <div class="container flex-grow-1">
         {% block content %}{% endblock content %}
     </div>
+    {% include 'global/partials/footer.html' %}
     {% bootstrap_javascript jquery='full' %}
 </body>
 </html>

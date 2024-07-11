@@ -6,17 +6,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% bootstrap_css %}
+
     <title>
         {% block title %}{% endblock %} Produtcs
     </title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body class="d-flex flex-column min-vh-100 bg-light" style="background-color: #f8f9fa;">
     {% include 'global/partials/header.html' %}
+
     <div class="container flex-grow-1">
         {% block content %}{% endblock content %}
     </div>
+
     {% include 'global/partials/footer.html' %}
     {% bootstrap_javascript jquery='full' %}
+
     <script src="{% static 'global/js/scripts.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>

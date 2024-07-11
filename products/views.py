@@ -11,6 +11,9 @@ class IndexListView(ListView):
     paginate_by = 3
     ordering = '-id'
     
+    def get_queryset(self):
+        return Product.objects.filter(is_published=True).order_by(self.ordering)
+    
     
 class CreateProductView(CreateView):
     model = Product

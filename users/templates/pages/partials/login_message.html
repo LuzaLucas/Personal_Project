@@ -1,7 +1,7 @@
 {% if request.user.is_authenticated %}
     <div class="login-message">
         You are logged in as {{ request.user.username }}.
-        Check your products, 
+        <a href="{% url "users:dashboard" %}">Check your products, 
         <a href="{% url 'users:dashboard_product_create' %}">create a new product</a> or  
         <form class="inline-form form-logout" action="{% url "users:logout" %}" method="post" style="display: inline;">
             {% csrf_token %}

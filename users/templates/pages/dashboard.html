@@ -11,26 +11,31 @@
         <div class="container">
             <h3>Your products</h3>
 
-            <ul>
+            <ul class="list-group">
                 {% for product in products %}
-                    <li>
-                        <a href="{% url 'users:dashboard_product_edit' product.id %}">{{ product.title }}</a>
-                        <form class="inline-form form-delete" method="POST"
-                        action="{% url "users:dashboard_product_delete" %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="id" value="{{ product.id }}">
-                            <button class="plaintext-button" type="submit">
-                                🗑️
-                            </button>
-                        </form>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="row">
+                            <div class="col-9">
+                                <a href="{% url 'users:dashboard_product_edit' product.id %}">{{ product.name }}</a>
+                            </div>
+                            <div class="col-3 text-right">
+                                <form class="inline-form form-delete" method="POST"
+                                      action="{% url "users:dashboard_product_delete" %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="id" value="{{ product.id }}">
+                                    <button class="btn btn-link text-danger p-0" type="submit">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </li>
                 {% empty %}
-                    <li>
+                    <li class="list-group-item">
                         <p>You don't have products, please create one.</p>
                     </li>
                 {% endfor %}
             </ul>
         </div>
     </div>
-
 {% endblock content %}

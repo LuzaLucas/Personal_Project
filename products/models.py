@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.contrib.auth.models import User
 import string
 import random
 
@@ -10,7 +11,8 @@ class Product(models.Model):
     description = models.TextField()
     cover = models.ImageField(upload_to='product_images/', blank=True, null=True)
     is_published = models.BooleanField(default=False)
-    slug = models.SlugField(unique=True, max_length=255)
+    slug = models.SlugField(unique=True, max_length=110)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
     def __str__(self):

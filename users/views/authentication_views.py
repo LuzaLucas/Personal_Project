@@ -8,8 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from users.forms.login import LoginForm
 from users.forms.register_form import RegisterForm
-from .models import Profile
-from products.models import Product
+from ..models import Profile
 
 
 def register_view(request):
@@ -88,23 +87,6 @@ def logout_view(request):
     messages.success(request, 'Logged out succsesfully')
     
     return redirect(reverse('users:login'))
-
-
-# TODO: CRIAR A DASHBOARD VIEW E OS TEMPLATES; LEMBRAR QUE O UNICO LOCAL ONDE 
-# 'USERS' VIROU 'AUTHOR'
-@login_required(login_url='users:login', redirect_field_name='next')
-def dashboard(request):
-    products = Product.objects.filter( 
-        is_published=False, 
-        author=request.User,
-    )
-    
-    return render(
-        request, 'pages/dashboard.html',
-        context={
-            'products': products,
-        }
-    )
     
 
 class ProfileView(TemplateView):

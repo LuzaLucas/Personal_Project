@@ -1,0 +1,36 @@
+{% extends "global/base.html" %}
+
+{% block title %}Dashboard ({{ user }}) | {% endblock title %}
+
+{% block content %}
+    <div class="main-content center container">
+        <h2>Dashboard ({{ user }})</h2>
+        {% include "pages/partials/login_message.html" %}
+        {% include "global/partials/messages.html" %}
+
+        <div class="container">
+            <h3>Your products</h3>
+
+            <ul>
+                {% for product in products %}
+                    <li>
+                        <a href="{% url 'users:dashboard_product_edit' product.id %}">{{ product.title }}</a>
+                        <form class="inline-form form-delete" method="POST"
+                        action="{% url "users:dashboard_product_delete" %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{ product.id }}">
+                            <button class="plaintext-button" type="submit">
+                                🗑️
+                            </button>
+                        </form>
+                    </li>
+                {% empty %}
+                    <li>
+                        <p>You don't have products, please create one.</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock content %}

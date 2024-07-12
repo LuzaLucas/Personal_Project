@@ -1,7 +1,8 @@
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import User
-
+from django.db.models.signals import post_delete, pre_save
+from django.dispatch import receiver
 from datetime import datetime
 from PIL import Image
 
@@ -36,6 +37,13 @@ class Product(models.Model):
             random_string = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
             self.slug = f"{base_slug}-{random_string}"
 
+        try:
+            this = Product.objects.get(id=self.id) # type: ignore
+            if this.cover != self.cover:
+                this.cover.delete(save=False)
+        except Product.DoesNotExist:
+            pass
+
         super().save(*args, **kwargs)
 
         if self.cover:
@@ -52,7 +60,7 @@ class Product(models.Model):
     def random_string(length=4):
         letters_and_digits = string.ascii_letters + string.digits
         return ''.join(random.choice(letters_and_digits) for _ in range(length))
-    
+
     @staticmethod
     def resize_image(image_path, new_width=480):
         image_pillow = Image.open(image_path)
@@ -73,3 +81,25 @@ class Product(models.Model):
             optimize=True,
             quality=80,
         )
+
+
+@receiver(post_delete, sender=Product)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    if instance.cover:
+        if os.path.isfile(instance.cover.path):
+            os.remove(instance.cover.path)
+
+@receiver(pre_save, sender=Product)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = Product.objects.get(pk=instance.pk).cover
+    except Product.DoesNotExist:
+        return False
+
+    new_file = instance.cover
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)

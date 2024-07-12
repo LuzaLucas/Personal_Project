@@ -19,7 +19,7 @@
                                 <a href="{% url 'users:dashboard_product_edit' product.id %}">{{ product.name }}</a>
                             </div>
                             <div class="col-3 text-right">
-                                <form class="inline-form form-delete" method="POST"
+                                <form class="form-delete" method="POST"
                                       action="{% url "users:dashboard_product_delete" %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="id" value="{{ product.id }}">

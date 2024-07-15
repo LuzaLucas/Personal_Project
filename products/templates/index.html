@@ -20,11 +20,14 @@
             <tbody>
                 {% for product in page_obj %}
                     <tr>
-                        <th scope="row">{{ product.name }}</th>
-                        <th scope="row">{{ product.stock }}</th>
-                        <th scope="row">${{ product.price }}</th><td>
-                            <a class="btn btn-warning" href="{% url "edit_product" product.pk %}">Edit</a>
-                            <a class="btn btn-danger" href="{% url "delete_product" product.pk %}">Delete</a>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.stock }}</td>
+                        <td>${{ product.price }}</td>
+                        <td>
+                            {% if user.is_authenticated and product.author == user %}
+                                <a class="btn btn-warning" href="{% url 'edit_product' product.pk %}">Edit</a>
+                                <a class="btn btn-danger" href="{% url 'delete_product' product.pk %}">Delete</a>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

@@ -6,3 +6,5 @@ from .models import Product
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'price', 'stock', 'is_published')
     prepopulated_fields = {'slug': ('name',)} 
+    list_editable = ('is_published',)
+    

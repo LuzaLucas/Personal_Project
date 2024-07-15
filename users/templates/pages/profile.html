@@ -1,12 +1,43 @@
-{% extends "global/base.html" %}
+{% extends 'global/base.html' %}
+{% load bootstrap4 %}
 
-{% block title %}Profile | {% endblock title %}
+{% block title %}
+  Profile |
+{% endblock %}
 
 {% block content %}
-    <div class="main-content center container">
-        <h2>{{ profile.author.first_name }}</h2>
-        <p>{{ profile.bio }}</p>
-        <p>{{ profile.adress }}</p>
-    </div>
+  <div class="main-content center container">
+    <h4 class="mt-4">Welcome to your profile: {{ profile.author.username }}</h4>
+    {% include 'global/partials/messages.html' %}
 
-{% endblock content %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Profile Information</h5>
+        {% if profile.author.first_name %}
+        <p><strong>First Name:</strong> {{ profile.author.first_name }}</p>
+        {% else %}
+        <p><strong>First Name:</strong> Not informed</p>
+        {% endif %}
+        {% if profile.author.last_name %}
+        <p><strong>Last Name:</strong> {{ profile.author.last_name }}</p>
+        {% else %}
+        <p><strong>Last Name:</strong> Not informed</p>
+        {% endif %}
+        <p><strong>Email:</strong> {{ profile.author.email }}</p>
+        <p><strong>Bio:</strong> {{ profile.bio }}</p>
+        <p><strong>Address:</strong> {{ profile.address }}</p>
+
+        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#editProfileForm" aria-expanded="false" aria-controls="editProfileForm">Edit Profile</button>
+
+        <div class="collapse mt-3" id="editProfileForm">
+          <form method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <button type="submit" class="btn btn-success">Save</button>
+            <a href="{% url 'index' %}" class="btn btn-warning">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

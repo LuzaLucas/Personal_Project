@@ -20,6 +20,11 @@
             <li class="nav-item">
                 <a class="nav-link text-white" href="{% url 'users:dashboard' %}">Dashboard</a>
             </li>
+                {% if user.profile %}
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'users:profile' id=user.profile.id %}">Profile</a>
+                    </li>
+                {% endif %}
             {% endif %}
         </ul>
     </div>

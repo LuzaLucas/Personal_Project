@@ -3,9 +3,10 @@ from django.http import Http404
 from django.contrib import messages
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
-from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
 
+from users.forms.profile_form import ProfileForm
 from users.forms.login import LoginForm
 from users.forms.register_form import RegisterForm
 from ..models import Profile
@@ -90,17 +91,24 @@ def logout_view(request):
     return redirect(reverse('users:login'))
     
 
-class ProfileView(TemplateView):
-    template_name = 'pages/profile.html'
-
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        profile_id = context.get('id')
-        profile = get_object_or_404(Profile.objects.filter(
-            pk=profile_id
-        ).select_related('author'), pk=profile_id)
-        
-        return self.render_to_response({
-            **context,
-            'profile': profile,
-        })
+@require_http_methods(["GET", "POST"])
+@login_required(login_url='users:login', redirect_field_name='next')
+def ProfileView(request, id):
+    profile = get_object_or_404(Profile, pk=id)
+    
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully.')
+            return redirect(reverse('users:profile', kwargs={'id': id}))
+        else:
+            messages.error(request, 'Error updating profile. Please correct the errors below.')
+    else:
+        form = ProfileForm(instance=profile)
+    
+    context = {
+        'profile': profile,
+        'form': form,
+    }
+    return render(request, 'pages/profile.html', context)

@@ -14,7 +14,7 @@ class UserProductForm(forms.ModelForm):
     
     class Meta:
         model = Product
-        fields = 'name', 'price', 'stock', 'description', 'cover'
+        fields = ['name', 'price', 'stock', 'description', 'cover',]
     
     def clean(self, *args, **kwargs):
         super_clean = super().clean(*args, **kwargs)

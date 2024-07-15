@@ -1,17 +1,26 @@
 {% extends "global/base.html" %}
+{% load bootstrap4 %}
 
 {% block title %}Login | {% endblock title %}
 
 {% block content %}
+    <div class="main-content container mt-5">
+        <h2 class="mb-4">Login</h2>
 
-    <div class="main-content center container">
-        <h2>Login</h2>
+        {% include "global/partials/messages.html" %}
+
+        {% if not user.is_authenticated %}
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" action="{% url 'users:login_create' %}">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+                        {% buttons %}
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        {% endbuttons %}
+                    </form>
+                </div>
+            </div>
+        {% endif %}
     </div>
-
-    {% include "global/partials/messages.html" %}
-
-    {% if not user.is_authenticated %}
-        {% include "global/partials/form.html" %}
-    {% endif %}
-    
 {% endblock content %}

@@ -1,16 +1,17 @@
-{% extends "global/base.html" %}
+{% extends 'global/base.html' %}
 
-{% block title %}Dashboard Product | {% endblock title %}
+{% block title %}
+  Dashboard Product |
+{% endblock %}
 
 {% block content %}
-    <div class="main-content center container">
-        <h2>Dashboard Product</h2>
-        {% include "global/partials/messages.html" %}
-        {% include "pages/partials/login_message.html" %}
+  <div class="main-content center container">
+    <h2>Dashboard Product</h2>
+    {% include 'global/partials/messages.html' %}
+    {% include 'pages/partials/login_message.html' %}
 
-        <div class="left">
-            {% include "global/partials/form.html" %}
-        </div>
+    <div class="left">
+      {% include 'global/partials/form.html' %}
     </div>
-
-{% endblock content %}
+  </div>
+{% endblock %}

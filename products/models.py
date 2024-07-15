@@ -88,6 +88,7 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     if instance.cover:
         if os.path.isfile(instance.cover.path):
             os.remove(instance.cover.path)
+            
 
 @receiver(pre_save, sender=Product)
 def auto_delete_file_on_change(sender, instance, **kwargs):
@@ -99,7 +100,6 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     except Product.DoesNotExist:
         return False
 
-    new_file = instance.cover
-    if not old_file == new_file:
+    if old_file and old_file != instance.cover:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)

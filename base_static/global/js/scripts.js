@@ -30,3 +30,28 @@ function my_scope() {
     }
   }
   my_scope();
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  const tooltipImage = document.getElementById('tooltip-image');
+  const tooltipImageSrc = document.getElementById('tooltip-image-src');
+
+  document.querySelectorAll('.product-name').forEach(function(element) {
+      element.addEventListener('mouseover', function(event) {
+          const imageUrl = event.target.getAttribute('data-image-url');
+          if (imageUrl) {
+              tooltipImageSrc.src = imageUrl;
+              tooltipImage.style.display = 'block';
+          }
+      });
+
+      element.addEventListener('mousemove', function(event) {
+          tooltipImage.style.top = (event.pageY + 10) + 'px';
+          tooltipImage.style.left = (event.pageX + 10) + 'px';
+      });
+
+      element.addEventListener('mouseout', function() {
+          tooltipImage.style.display = 'none';
+      });
+  });
+});

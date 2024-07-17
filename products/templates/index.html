@@ -1,4 +1,5 @@
 {% extends 'global/base.html' %}
+{% load static %}
 {% load humanize %}
 
 {% block content %}
@@ -20,7 +21,9 @@
             <tbody>
                 {% for product in page_obj %}
                     <tr>
-                        <td>{{ product.name }}</td>
+                        <td class="product-name" data-image-url="{% if product.cover %}{{ product.cover.url }}{% endif %}">
+                            {{ product.name }}
+                        </td>
                         <td>{{ product.stock }}</td>
                         <td>${{ product.price }}</td>
                         <td>
@@ -35,4 +38,11 @@
         </table>
         {% include 'global/partials/pagination.html' %}
     </div>
+
+    <div id="tooltip-image" style="display:none; position:fixed; width:500px; height:500px; border:1px solid #ccc; background:#fff;">
+        <img id="tooltip-image-src" src="" alt="Product Image" style="width:100%; height:100%;">
+    </div>
+
 {% endblock content %}
+
+<script src="{% static 'global/js/scripts.js' %}"></script>

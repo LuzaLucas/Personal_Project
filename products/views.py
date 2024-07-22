@@ -15,18 +15,18 @@ class IndexListView(ListView):
         return Product.objects.filter(is_published=True).order_by(self.ordering)
     
     
-class CreateProductView(CreateView):
-    model = Product
-    template_name = 'product_form.html'
-    fields = ['name', 'stock', 'price', 'description']
-    success_url = reverse_lazy('index')
+# class CreateProductView(CreateView):
+#     model = Product
+#     template_name = 'product_form.html'
+#     fields = ['name', 'stock', 'price', 'description']
+#     success_url = reverse_lazy('products:home')
     
     
 class UpdateProductView(UpdateView):
     model = Product
     template_name = 'product_form.html'
     fields = ['name', 'stock', 'price', 'description']
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy('products:home')
     
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -38,4 +38,4 @@ class UpdateProductView(UpdateView):
 class DeleteProductView(DeleteView):
     model = Product
     template_name = 'product_del.html'
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy('products:home')

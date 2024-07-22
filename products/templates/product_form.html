@@ -1,17 +1,14 @@
 {% extends 'global/base.html' %}
 {% load bootstrap4 %}
 {% block content %}
-    <h1>Products: Create</h1>
-    <form method="post">
-        {% csrf_token %}
-        {% bootstrap_form form %}
-        <p>Observation: after you edit this product, it will be unpublished 
-            until an admin review it.</p>
-            {% buttons %}
-                <button type="submit" class="btn btn-primary">Save</button>
-                <button type="button" class="btn btn-warning">
-                    <a href="{% url "index" %}">Cancel</a>
-                </button>
-            {% endbuttons %}
-    </form>
-{% endblock content %}
+  <h1>Products: Create</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <p>Observation: after you edit this product, it will be unpublished until an admin review it.</p>
+    {% buttons %}
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" class="btn btn-warning"><a href="{% url 'index' %}">Cancel</a></button>
+    {% endbuttons %}
+  </form>
+{% endblock %}

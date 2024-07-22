@@ -1,17 +1,20 @@
 {% extends 'global/base.html' %}
+{% load bootstrap4 %}
 
 {% block title %}
   Dashboard Product |
 {% endblock %}
 
 {% block content %}
-  <div class="main-content center container">
-    <h2>Dashboard Product</h2>
+  <div class="main-content container mt-5">
+    <h2 class="mb-4">Dashboard Product</h2>
     {% include 'global/partials/messages.html' %}
     {% include 'pages/partials/login_message.html' %}
 
-    <div class="left">
-      {% include 'global/partials/form.html' %}
+    <div class="card">
+      <div class="card-body">
+        {% include 'global/partials/form.html' %}
+      </div>
     </div>
   </div>
 {% endblock %}

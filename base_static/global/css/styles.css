@@ -1,0 +1,23 @@
+.col-form-label,
+.form-control {
+    margin-bottom: 0;
+}
+
+.form-control {
+    padding-left: 0.5rem;
+}
+
+.pagination-btn {
+    position: relative;
+    z-index: 1;/
+}
+
+#tooltip-image {
+    display: none;
+    position: fixed;
+    width: 250px;
+    height: 250px;
+    border: 1px solid #ccc;
+    background: #fff;
+    z-index: 10;/
+}

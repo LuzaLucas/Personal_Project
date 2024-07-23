@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.urls import reverse, resolve
+from django.contrib.auth.models import User
 
 from products import views
+from products.models import Category, Product
   
 
 class ProductsViewsTest(TestCase):
@@ -21,6 +23,33 @@ class ProductsViewsTest(TestCase):
     def test_products_home_template_shows_no_products_found_if_no_products(self):
         response = self.client.get(reverse('products:home'))
         self.assertIn('No products have been added yet.', response.content.decode('utf-8'))
+        
+    def test_products_home_template_loads_products(self):
+        category = Category.objects.create(name='Category')
+        author = User.objects.create_user(
+            first_name='first',
+            last_name='last',
+            username='nickname',
+            password='P@ssw0rd',
+            email='email@email.com',
+        )
+        product = Product.objects.create(
+            name='product name',
+            slug='product-name-5k43l',
+            price=55.55,
+            stock=25,
+            description='product description',
+            is_published=True,
+            author=author,
+            category=category,
+        )
+        response = self.client.get(reverse('products:home'))
+        
+        content = response.content.decode('utf-8')
+        self.assertIn('product name', content)
+        
+        response_product = response.context['product_list']
+        self.assertEqual(25, response_product.first().stock)
     
     # update view
     def test_products_update_view_is_correct(self):

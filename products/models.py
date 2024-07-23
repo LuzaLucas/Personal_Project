@@ -18,6 +18,17 @@ def generate_upload_path(instance, filename):
     return os.path.join('products', 'covers', timestamp, new_filename)
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+    
+    def __str__(self) -> str:
+        return self.name
+    
+    class Meta:
+        verbose_name = ('Category')
+        verbose_name_plural = ('Categories')
+
+
 class Product(models.Model):
     name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=8, decimal_places=2)
@@ -27,6 +38,8 @@ class Product(models.Model):
     is_published = models.BooleanField(default=False)
     slug = models.SlugField(unique=True, max_length=110)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True,
+        blank=True, default=None)
 
     def __str__(self):
         return self.name

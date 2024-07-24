@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from django.contrib.auth.models import User
 from products.models import Category, Product
+from decimal import Decimal
 
 
 class ProductTestBase(TestCase):
@@ -31,7 +32,7 @@ class ProductTestBase(TestCase):
         self,
         name='product name',
         slug='product-name-5k43l',
-        price=55.55,
+        price=Decimal('55.55'),
         stock=25,
         description='product description',
         is_published=True,

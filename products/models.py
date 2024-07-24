@@ -37,6 +37,8 @@ class Product(models.Model):
     cover = models.ImageField(upload_to=generate_upload_path, blank=True, null=True)
     is_published = models.BooleanField(default=False)
     slug = models.SlugField(unique=True, max_length=110)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True,
         blank=True, default=None)

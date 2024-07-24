@@ -1,4 +1,6 @@
 from django.urls import reverse, resolve
+from django.test import Client
+from decimal import Decimal
 
 from products import views
 from .test_products_base import ProductTestBase
@@ -35,6 +37,29 @@ class ProductsViewsTest(ProductTestBase):
     def test_products_update_view_is_correct(self):
         view = resolve(reverse('products:edit_product', kwargs={'pk': 5}))
         self.assertIs(view.func.view_class, views.UpdateProductView)
+        
+    def test_form_valid_updates_is_published(self):
+        product = self.make_product()
+        
+        data = {
+            'name': 'updated name',
+            'stock': 10,
+            'price': 44.99,
+            'description': 'updated description',
+        }
+
+        url = reverse('products:edit_product', kwargs={'pk': product.pk})
+        response = self.client.post(url, data)
+
+        product.refresh_from_db()
+
+        self.assertFalse(product.is_published)
+        self.assertRedirects(response, reverse('products:home'))
+
+        self.assertEqual(product.name, 'updated name')
+        self.assertEqual(product.stock, 10)
+        self.assertEqual(product.price, Decimal('44.99'))
+        self.assertEqual(product.description, 'updated description')
         
     # delete view
     def test_products_delete_view_is_correct(self):

@@ -1,12 +1,10 @@
-from django.test import TestCase
 from django.urls import reverse, resolve
-from django.contrib.auth.models import User
 
 from products import views
-from products.models import Category, Product
+from .test_products_base import ProductTestBase
   
 
-class ProductsViewsTest(TestCase):
+class ProductsViewsTest(ProductTestBase):
     # home view
     def test_products_home_view_is_correct(self):
         view = resolve(reverse('products:home'))
@@ -25,26 +23,8 @@ class ProductsViewsTest(TestCase):
         self.assertIn('No products have been added yet.', response.content.decode('utf-8'))
         
     def test_products_home_template_loads_products(self):
-        category = Category.objects.create(name='Category')
-        author = User.objects.create_user(
-            first_name='first',
-            last_name='last',
-            username='nickname',
-            password='P@ssw0rd',
-            email='email@email.com',
-        )
-        product = Product.objects.create(
-            name='product name',
-            slug='product-name-5k43l',
-            price=55.55,
-            stock=25,
-            description='product description',
-            is_published=True,
-            author=author,
-            category=category,
-        )
+        self.make_product()
         response = self.client.get(reverse('products:home'))
-        
         content = response.content.decode('utf-8')
         self.assertIn('product name', content)
         

@@ -1,7 +1,6 @@
 from django import forms
 from products.models import Product
 from collections import defaultdict
-from utils.django_forms import add_attr
 from django.core.exceptions import ValidationError
 from users.validators import UserProductValidator
 

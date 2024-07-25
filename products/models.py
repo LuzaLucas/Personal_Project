@@ -1,21 +1,8 @@
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import User
-from django.db.models.signals import post_delete, pre_save
-from django.dispatch import receiver
-from datetime import datetime
-from PIL import Image
-
-import os
-import string
-import random
-
-
-def generate_upload_path(instance, filename):
-    random_chars = ''.join(random.choices(string.ascii_lowercase + string.digits, k=20))
-    timestamp = datetime.now().strftime("%Y/%m/%d")
-    new_filename = f"{random_chars}.jpg"
-    return os.path.join('products', 'covers', timestamp, new_filename)
+from utils.django_utils_generic import generate_upload_path, random_string
+from utils.django_utils_images import resize_image
 
 
 class Category(models.Model):
@@ -49,8 +36,7 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.name)
-            random_string = ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))
-            self.slug = f"{base_slug}-{random_string}"
+            self.slug = f"{base_slug}-{random_string(4)}"
 
         try:
             this = Product.objects.get(id=self.id) # type: ignore
@@ -62,59 +48,11 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
         if self.cover:
-            self.resize_image(self.cover.path, 480)
+            resize_image(self.cover.path, 480)
 
     def generate_unique_slug(self):
         base_slug = slugify(self.name)
         slug = base_slug
         while Product.objects.filter(slug=slug).exists():
-            slug = f'{base_slug}-{self.random_string(4)}'
+            slug = f'{base_slug}-{random_string(4)}'
         return slug
-
-    @staticmethod
-    def random_string(length=4):
-        letters_and_digits = string.ascii_letters + string.digits
-        return ''.join(random.choice(letters_and_digits) for _ in range(length))
-
-    @staticmethod
-    def resize_image(image_path, new_width=480):
-        image_pillow = Image.open(image_path)
-        original_width, original_height = image_pillow.size
-
-        if original_width <= new_width:
-            image_pillow.close()
-            return
-
-        new_height = round((new_width * original_height) / original_width)
-
-        new_image = image_pillow.resize((new_width, new_height), resample=Image.LANCZOS) # type: ignore
-
-        image_pillow.close()
-
-        new_image.save(
-            image_path,
-            optimize=True,
-            quality=80,
-        )
-
-
-@receiver(post_delete, sender=Product)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    if instance.cover:
-        if os.path.isfile(instance.cover.path):
-            os.remove(instance.cover.path)
-            
-
-@receiver(pre_save, sender=Product)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = Product.objects.get(pk=instance.pk).cover
-    except Product.DoesNotExist:
-        return False
-
-    if old_file and old_file != instance.cover:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)

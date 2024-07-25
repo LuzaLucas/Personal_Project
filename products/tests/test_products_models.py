@@ -9,6 +9,9 @@ class ProductModelTest(ProductTestBase):
     def setUp(self) -> None:
         self.product = self.make_product()
         return super().setUp()
+    
+    def test_product_model_string_representation_is_name_field(self):
+        self.assertEqual(str(self.product), self.product.name)
             
     def test_product_name_max_length(self):
         self.product.name = 'A' * 101

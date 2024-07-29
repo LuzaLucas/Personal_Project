@@ -130,3 +130,4 @@ db copy.sqlite3
 static/
 extra_txts.txt
 fixture.json
+bin

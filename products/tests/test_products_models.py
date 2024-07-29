@@ -2,10 +2,6 @@ from .test_products_base import ProductTestBase
 from django.core.exceptions import ValidationError
 from decimal import Decimal
 from django.utils.text import slugify
-from django.core.management import call_command
-
-from utils.django_utils_generic import random_string
-from products.models import Product
 
 
 class ProductModelTest(ProductTestBase):

@@ -27,17 +27,16 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True,
-        blank=True, default=None)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, default=None)
 
     def __str__(self):
         return self.name
-
+            
+            
     def save(self, *args, **kwargs):
         if not self.slug:
-            base_slug = slugify(self.name)
-            self.slug = f"{base_slug}-{random_string(4)}"
-
+            self.slug = self.generate_unique_slug('name', 'slug')
+        
         try:
             this = Product.objects.get(id=self.id) # type: ignore
             if this.cover != self.cover:
@@ -45,14 +44,16 @@ class Product(models.Model):
         except Product.DoesNotExist:
             pass
 
-        super().save(*args, **kwargs)
+        super(Product, self).save(*args, **kwargs)
 
         if self.cover:
             resize_image(self.cover.path, 480)
 
-    def generate_unique_slug(self):
-        base_slug = slugify(self.name)
+
+    def generate_unique_slug(self, field_name, slug_field_name):
+        base_slug = slugify(getattr(self, field_name), allow_unicode=True)
         slug = base_slug
-        while Product.objects.filter(slug=slug).exists():
-            slug = f'{base_slug}-{random_string(4)}'
+        ModelClass = self.__class__
+        while ModelClass.objects.filter(**{slug_field_name: slug}).exclude(id=self.id).exists(): # type: ignore
+            slug = f"{base_slug}-{random_string(4)}"
         return slug

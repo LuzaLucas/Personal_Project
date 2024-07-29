@@ -1,8 +1,11 @@
 from .test_products_base import ProductTestBase
 from django.core.exceptions import ValidationError
 from decimal import Decimal
+from django.utils.text import slugify
+from django.core.management import call_command
 
-from products.models import Category
+from utils.django_utils_generic import random_string
+from products.models import Product
 
 
 class ProductModelTest(ProductTestBase):
@@ -24,6 +27,39 @@ class ProductModelTest(ProductTestBase):
 
         with self.assertRaises(ValidationError):
             self.product.full_clean()
+    
+    
+class ProductModelSaveTest(ProductTestBase):        
+    def test_product_slug_is_generated_if_not_provided(self):
+        product = self.make_product(slug='')
+        product.save()
+        self.assertIsNotNone(product.slug)
+        
+    def test_product_slug_is_not_changed_on_update(self):
+        product = self.make_product()
+        original_slug = product.slug
+        product.name = 'Updated product name'
+        product.save()
+        self.assertEqual(product.slug, original_slug)
+        
+    def test_product_model_generates_unique_slug(self):
+        product1 = self.make_product(
+            name='Unique Product Name',
+            slug='',
+            author_data={
+                'username':'another user'
+            })
+        product1.save()
+        
+        product2 = self.make_product(
+            name='Another unique Product Name',
+            slug='',
+        )
+        product2.save()
+        
+        self.assertNotEqual(product1.slug, product2.slug)
+        expected_slug_start = slugify(product2.name)
+        self.assertTrue(product2.slug.startswith(expected_slug_start))
 
 
 class CategoryModelTest(ProductTestBase):

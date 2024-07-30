@@ -5,10 +5,7 @@ from products.models import Category, Product
 from decimal import Decimal
 
 
-class ProductTestBase(TestCase):
-    def setUp(self) -> None:
-        return super().setUp()
-        
+class ProductMixin:
     def make_category(self, name='Category'):
         return Category.objects.create(name=name)
     
@@ -55,3 +52,16 @@ class ProductTestBase(TestCase):
             author=self.make_author(**author_data),
             category=self.make_category(**category_data),
         )
+        
+    def make_product_in_batch(self, qtd=6):
+        products = []
+        for i in range(qtd):
+            kwargs = {'name': f'product n{i}', 'slug': f'slug-n-{i}', 'author_data': {'username': f'username-n-{i}'}}
+            product = self.make_product(**kwargs)
+            products.append(product)
+        return products
+
+
+class ProductTestBase(TestCase, ProductMixin):
+    def setUp(self) -> None:
+        return super().setUp()

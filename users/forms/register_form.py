@@ -16,7 +16,7 @@ class RegisterForm(forms.ModelForm):
     username = forms.CharField(
         label='Username',
         help_text=(
-            'Username must have letters, number or some of those @/./+/=/_. '
+            'Username must have letters, numbers or some of those @/./+/=/_. '
             'The length should be between 4 and 150 characters.'
         ),
         error_messages={

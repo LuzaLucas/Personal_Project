@@ -1,5 +1,6 @@
 from PIL import Image
 
+
 def resize_image(image_path, new_width=480):
     image_pillow = Image.open(image_path)
     original_width, original_height = image_pillow.size

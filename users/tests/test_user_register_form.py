@@ -2,6 +2,7 @@ from unittest import TestCase
 from django.test import TestCase as DjangoTestCase
 from parameterized import parameterized
 from django.urls import reverse
+from django.contrib.auth.models import User
 
 from users.forms.register_form import RegisterForm
 from users.forms.login import LoginForm
@@ -121,3 +122,28 @@ class UserRegisterFormIntegrationTest(DjangoTestCase):
         
         msg = 'Password and password 2 must match'
         self.assertIn(msg, response.context['form'].errors.get('password'))
+        
+        
+    def test_email_field_is_unique(self):
+        email_repeated = 'email@email.com'
+        self.form_data['email'] = email_repeated
+        User.objects.create_user(
+            username='existinguser',
+            email=email_repeated,
+            password='Password123'
+        )
+        form = RegisterForm(data=self.form_data)
+
+        url = reverse('users:register_create')
+        response = self.client.post(url, data=self.form_data, follow=True)
+        msg = 'User email is already in use'
+        
+        self.assertFalse(form.is_valid())
+        self.assertIn(msg, response.context['form'].errors.get('email'))
+        
+        
+    def test_send_get_request_to_registration_create_view_returns_404(self):
+        url = reverse('users:register_create')
+        response = self.client.get(url, data=self.form_data, follow=True)
+        
+        self.assertEqual(response.status_code, 404)

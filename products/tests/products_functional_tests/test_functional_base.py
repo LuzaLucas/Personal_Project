@@ -1,6 +1,6 @@
 # from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
-from utils.browser import make_chrome_browser
+from utils.django_utils_browser import make_chrome_browser
 
 import time
 

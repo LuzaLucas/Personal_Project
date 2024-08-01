@@ -2,6 +2,12 @@ from .test_products_base import ProductTestBase
 from django.core.exceptions import ValidationError
 from decimal import Decimal
 from django.utils.text import slugify
+from unittest.mock import patch
+from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+import os
 
 
 class ProductModelTest(ProductTestBase):
@@ -25,7 +31,13 @@ class ProductModelTest(ProductTestBase):
             self.product.full_clean()
     
     
-class ProductModelSaveTest(ProductTestBase):        
+class ProductModelSaveTest(ProductTestBase):   
+    def tearDown(self):
+        # Remove any files created during the tests
+        for root, dirs, files in os.walk('media/products/covers/'):
+            for file in files:
+                os.remove(os.path.join(root, file))   
+                  
     def test_product_slug_is_generated_if_not_provided(self):
         product = self.make_product(slug='')
         product.save()
@@ -56,7 +68,34 @@ class ProductModelSaveTest(ProductTestBase):
         self.assertNotEqual(product1.slug, product2.slug)
         expected_slug_start = slugify(product2.name)
         self.assertTrue(product2.slug.startswith(expected_slug_start))
-
+        
+    @patch('utils.django_utils_images.resize_image')
+    def test_save_without_cover_does_not_call_resize_function(self, mock_resize_image):
+        product = self.make_product()
+        product.save()
+        
+        mock_resize_image.assert_not_called()
+        
+    def test_save_with_cover_calls_resize_image(self):
+        image_io = BytesIO()
+        image = Image.new('RGB', (800, 800), color='red')
+        image.save(image_io, format='JPEG')
+        image_io.seek(0)
+        
+        cover_image = SimpleUploadedFile(
+            name='cover.jpg',
+            content=image_io.read(),
+            content_type='image/jpeg'
+        )
+        
+        product = self.make_product(cover=cover_image)
+        product.save()
+        
+        cover_path = product.cover.path
+        with Image.open(cover_path) as img:
+            self.assertEqual(img.width, 480)
+            self.assertEqual(img.height, round((480 * 800) / 800))
+        
 
 class CategoryModelTest(ProductTestBase):
     def setUp(self) -> None:

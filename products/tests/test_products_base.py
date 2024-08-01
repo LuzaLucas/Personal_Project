@@ -35,6 +35,7 @@ class ProductMixin:
         is_published=True,
         author_data=None,
         category_data=None,
+        cover=None,
     ):
         if author_data is None:
             author_data = {}
@@ -51,6 +52,7 @@ class ProductMixin:
             is_published=True,
             author=self.make_author(**author_data),
             category=self.make_category(**category_data),
+            cover=cover,
         )
         
     def make_product_in_batch(self, qtd=6):

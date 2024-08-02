@@ -1,3 +1,4 @@
+import os
 from .test_products_base import ProductTestBase
 from django.core.exceptions import ValidationError
 from decimal import Decimal
@@ -6,8 +7,6 @@ from unittest.mock import patch
 from PIL import Image
 from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
-
-import os
 
 
 class ProductModelTest(ProductTestBase):
@@ -31,12 +30,16 @@ class ProductModelTest(ProductTestBase):
             self.product.full_clean()
     
     
-class ProductModelSaveTest(ProductTestBase):   
+class ProductModelSaveTest(ProductTestBase):
+    def setUp(self):
+        self.test_file_paths = []
+        return super().setUp()
+    
     def tearDown(self):
-        # Remove any files created during the tests
-        for root, dirs, files in os.walk('media/products/covers/'):
-            for file in files:
-                os.remove(os.path.join(root, file))   
+        for file_path in self.test_file_paths:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        super().tearDown()
                   
     def test_product_slug_is_generated_if_not_provided(self):
         product = self.make_product(slug='')
@@ -92,6 +95,7 @@ class ProductModelSaveTest(ProductTestBase):
         product.save()
         
         cover_path = product.cover.path
+        self.test_file_paths.append(cover_path)
         with Image.open(cover_path) as img:
             self.assertEqual(img.width, 480)
             self.assertEqual(img.height, round((480 * 800) / 800))

@@ -1,5 +1,4 @@
 from django.urls import reverse, resolve
-from django.test import Client
 from decimal import Decimal
 
 from products import views

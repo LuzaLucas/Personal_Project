@@ -2,7 +2,7 @@ from django.urls import reverse
 from django.test import Client
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from decimal import Decimal
+from unittest.mock import patch
 
 from products.models import Product
 from users.views import DashboardProduct
@@ -140,13 +140,24 @@ class DashboardViewsTest(ProductTestBase):
         self.assertTrue(not form.is_valid())
         
         
-class DashboardDeleteViewTests(ProductTestBase):
-    def setUp(self) -> None:
+class DashboardDeleteViewTest(ProductTestBase):
+    def setUp(self):
         self.client = Client()
+        self.user = self.make_author(
+            username='testuser 1234',
+            password='testpass',
+        )
+        self.product = self.make_product(author_data={'username': 'testuser'})
         
-        self.product = self.make_product(name='Deletable product')
-        self.user = self.product.author
-        
-        self.client.force_login(self.user)
-        
-    
+    def test_product_delete(self):
+        self.client.login(username='testuser 1234', password='testpass')
+
+        self.assertEqual(Product.objects.count(), 1)
+
+        with patch('users.views.dashboard_views.DashboardProductDelete.get_product') as mock_get_product:
+            mock_get_product.return_value = self.product
+
+            response = self.client.post(reverse('users:dashboard_product_delete'), {'id': self.product.id}, follow=True) # type: ignore
+
+            self.assertEqual(Product.objects.count(), 0)
+            self.assertRedirects(response, reverse('users:dashboard'))

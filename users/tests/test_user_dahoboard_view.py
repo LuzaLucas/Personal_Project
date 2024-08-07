@@ -161,3 +161,4 @@ class DashboardDeleteViewTest(ProductTestBase):
 
             self.assertEqual(Product.objects.count(), 0)
             self.assertRedirects(response, reverse('users:dashboard'))
+ 

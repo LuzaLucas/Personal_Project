@@ -10,7 +10,7 @@ from users.forms.product_form import UserProductForm
 
 
 @login_required(login_url='users:login', redirect_field_name='next')
-def dashboard(request):
+def Dashboard(request):
     products = Product.objects.filter(
         is_published=False,
         author=request.user,

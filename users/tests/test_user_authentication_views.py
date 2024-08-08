@@ -41,3 +41,7 @@ class ProfileViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Error updating profile. Please correct the errors below.')
         self.assertContains(response, 'Ensure this value has at most 255 characters (it has 260).')
+
+
+class RegistrationViewsTest(TestCase):
+    ...

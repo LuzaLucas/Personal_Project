@@ -2,7 +2,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 
-from .models import Product
+from ..models import Product
 
 
 class IndexListView(ListView):
@@ -13,14 +13,7 @@ class IndexListView(ListView):
     
     def get_queryset(self):
         return Product.objects.filter(is_published=True).order_by(self.ordering)
-    
-    
-# class CreateProductView(CreateView):
-#     model = Product
-#     template_name = 'product_form.html'
-#     fields = ['name', 'stock', 'price', 'description']
-#     success_url = reverse_lazy('products:home')
-    
+
     
 class UpdateProductView(UpdateView):
     model = Product

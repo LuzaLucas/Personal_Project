@@ -128,7 +128,7 @@ class LogoutViewTest(TestCase):
         response = self.client.post(reverse('users:logout'), {'username': 'InvalidUsername'})
         self.assertRedirects(response, reverse('users:login'))
         
-        messages = list(response.wsgi_request._messages)
+        messages = list(response.wsgi_request._messages) # type: ignore
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), 'Invalid logout user')
         

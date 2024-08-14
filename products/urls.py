@@ -11,17 +11,17 @@ urlpatterns = [
     path('<int:pk>/delete/', views.DeleteProductView.as_view(), name='delete_product'),
     path(
         'products/api/',
-        views.products_api_list,
+        views.ProductAPIList.as_view(),
         name='products_api',
     ),
     path(
         'products/api/<int:pk>/',
-        views.products_api_detail,
+        views.ProductAPIDetail.as_view(),
         name='products_api_detail',
     ),
     path(
         'products/api/author/<int:pk>/',
-        views.products_api_detail_author,
+        views.ProductsAPIDetailAuthor.as_view(),
         name='products_api_detail_author',
     )
 ]

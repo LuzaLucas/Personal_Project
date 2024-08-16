@@ -10,7 +10,8 @@ from products import views
 
 app_name = 'products'
 product_api_router = SimpleRouter()
-product_api_router.register('products/api', views.ProductAPIViewSet)
+product_api_router.register('products/api', views.ProductAPIViewSet, 
+    basename='products-api')
 
 
 urlpatterns = [
@@ -21,6 +22,11 @@ urlpatterns = [
         'products/api/author/<int:pk>/',
         views.ProductsAPIDetailAuthor.as_view(),
         name='products_api_detail_author',
+    ),
+    path(
+        'products/api/me/',
+        views.LoggedInUserAPIView.as_view(),
+        name='products_api_me',
     ),
     path(
         'products/api/token/',

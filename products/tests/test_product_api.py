@@ -31,7 +31,7 @@ class ProductAPITestMixin(APITestCase, ProductMixin):
             'user': user,
         }
     
-    def get_product_raw_data(self):
+    def get_product_raw_data(self, author_id):
         category = self.make_category()
         return {
             'name': 'This is the name',
@@ -39,7 +39,7 @@ class ProductAPITestMixin(APITestCase, ProductMixin):
             'price': '55',
             'description': 'This is the description',
             'category': category.id, # type: ignore
-            'author': 1,
+            'author': author_id,
         }
 
 
@@ -76,15 +76,20 @@ class ProductAPITest(ProductAPITestMixin):
         self.assertEqual(response.status_code, 401)
         
     def test_product_api_logged_user_can_create_a_product(self):
-        product_raw_data = self.get_product_raw_data()
         auth_data = self.get_auth_data()
         jwt_access_token = auth_data.get('jwt_access_token')
+        user = auth_data.get('user')
+        product_raw_data = self.get_product_raw_data(author_id=user.id) # type: ignore
         
         response = self.client.post(
             self.get_product_list_reverse_url(),
             data=product_raw_data,
             HTTP_AUTHORIZATION=f'Bearer {jwt_access_token}'
         )
+        
+        if response.status_code != 201:
+            print(response.data)  # type: ignore
+        
         self.assertEqual(response.status_code, 201)
         
         
@@ -124,4 +129,26 @@ class ProductAPITest(ProductAPITestMixin):
         # assertion
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.get('name'), wanted_new_name) # type: ignore
+        
+    def test_product_api_logged_user_cant_update_a_product_he_doesnt_own(self):
+        product = self.make_product()
+        # creating a user that does not own the product
+        another_user = self.get_auth_data(username='not_the_owner')
+        jwt_another_user = another_user.get('jwt_access_token')
+        
+        # this is the user who owns the product
+        owner_user = self.get_auth_data(username='test_patch')
+        author = owner_user.get('user')
+        product.author = author # type: ignore
+        product.save()
+        
+        # "another_user" tries to update the product he doesn't owns
+        response = self.client.patch(
+            reverse('products:products-api-detail', args=(product.id,)), # type: ignore
+            data={},
+            HTTP_AUTHORIZATION=f'Bearer {jwt_another_user}'
+        )
+        
+        # "another_user" is forbidden to update the product
+        self.assertEqual(response.status_code, 403)
         

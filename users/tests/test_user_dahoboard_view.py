@@ -91,7 +91,7 @@ class DashboardViewsTest(ProductTestBase):
         view = DashboardProduct()
         view.request = response.wsgi_request
         
-        print(response.content.decode('utf-8'))
+        # print(response.content.decode('utf-8'))
         
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response, HttpResponse)

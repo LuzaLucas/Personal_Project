@@ -92,21 +92,6 @@ class ProductAPITest(ProductAPITestMixin):
         
         self.assertEqual(response.status_code, 201)
         
-        
-        # # testing validation errors when creating a product (name field)
-        # data = self.get_product_raw_data()
-        # response = self.client.post(
-        #     self.get_product_reverse_url(),
-        #     data=data,
-        #     HTTP_AUTHORIZATION=f'Bearer {self.get_jwt_access_token()}'
-        # )
-        # data['name'] = ''
-        # self.assertEqual(response.status_code, 400)
-        # self.assertEqual(
-        #     response.data.get('name')[0],
-        #     'This field is required.'
-        # )
-        
     def test_product_api_logged_user_can_update_a_product(self):
         # arrange
         product = self.make_product()
@@ -151,4 +136,43 @@ class ProductAPITest(ProductAPITestMixin):
         
         # "another_user" is forbidden to update the product
         self.assertEqual(response.status_code, 403)
+        
+    # def test_validation_errors_when_creating_a_product(self):
+    #     auth_data = self.get_auth_data()
+    #     jwt_access_token = auth_data.get('jwt_access_token')
+    #     user = auth_data.get('user')
+    #     product_raw_data = self.get_product_raw_data(author_id=user.id) # type: ignore
+        
+    #     response = self.client.post(
+    #         self.get_product_list_reverse_url(),
+    #         data=product_raw_data,
+    #         HTTP_AUTHORIZATION=f'Bearer {jwt_access_token}'
+    #     )
+    #     product_raw_data['name'] = ''
+        
+    #     self.assertEqual(
+    #         response.data.get('name')[0],
+    #         'This field is required.'
+    #     )
+    
+
+class LoggedInUserAPITest(ProductAPITestMixin, APITestCase):
+    def test_logged_in_user_api_view(self):
+        auth_data = self.get_auth_data()
+        jwt_access_token = auth_data.get('jwt_access_token')
+
+        response = self.client.get(
+            reverse('products:products_api_me'),
+            HTTP_AUTHORIZATION=f'Bearer {jwt_access_token}'
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        expected_data = {
+            "username": auth_data['user'].username,
+            "first_name": auth_data['user'].first_name,
+            "last_name": auth_data['user'].last_name,
+            "email": auth_data['user'].email,
+        }
+        self.assertEqual(response.data, expected_data) # type: ignore
         

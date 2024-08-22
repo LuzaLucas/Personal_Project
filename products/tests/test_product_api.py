@@ -1,6 +1,7 @@
 from rest_framework.test import APITestCase
 from products.tests.test_products_base import ProductMixin
 from django.urls import reverse
+from parameterized import parameterized
 
 
 class ProductAPITestMixin(APITestCase, ProductMixin):
@@ -87,8 +88,8 @@ class ProductAPITest(ProductAPITestMixin):
             HTTP_AUTHORIZATION=f'Bearer {jwt_access_token}'
         )
         
-        if response.status_code != 201:
-            print(response.data)  # type: ignore
+        # if response.status_code != 201:
+        # print(response.data)  # type: ignore
         
         self.assertEqual(response.status_code, 201)
         
@@ -137,27 +138,109 @@ class ProductAPITest(ProductAPITestMixin):
         # "another_user" is forbidden to update the product
         self.assertEqual(response.status_code, 403)
         
-    # def test_validation_errors_when_creating_a_product(self):
-    #     auth_data = self.get_auth_data()
-    #     jwt_access_token = auth_data.get('jwt_access_token')
-    #     user = auth_data.get('user')
-    #     product_raw_data = self.get_product_raw_data(author_id=user.id) # type: ignore
+    @parameterized.expand([
+        ("name", "", 'This field may not be blank.'),
+        ("stock", "", 'A valid integer is required.'),
+        ("price", "", 'A valid number is required.'),
+        ("description", "", 'This field may not be blank.'),
+        ("category", "", 'This field may not be null.'),
+    ])
+    def test_validation_errors_when_creating_a_product_with_empty_fields(self, field, empty_value, expected_error_message):
+        auth_data = self.get_auth_data()
+        jwt_access_token = auth_data.get('jwt_access_token')
+        user = auth_data.get('user')
+        product_raw_data = self.get_product_raw_data(author_id=user.id) # type: ignore
+    
+        product_raw_data[field] = empty_value
+    
+        response = self.client.post(
+            self.get_product_list_reverse_url(),
+            data=product_raw_data,
+            HTTP_AUTHORIZATION=f'Bearer {jwt_access_token}'
+        )
+    
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            str(response.data.get(field)[0]),  # type: ignore
+            expected_error_message
+        )
         
-    #     response = self.client.post(
-    #         self.get_product_list_reverse_url(),
-    #         data=product_raw_data,
-    #         HTTP_AUTHORIZATION=f'Bearer {jwt_access_token}'
-    #     )
-    #     product_raw_data['name'] = ''
+    def test_validation_errors_when_creating_a_product_with_invalid_data(self):
+        auth_data = self.get_auth_data()
+        jwt_access_token = auth_data.get('jwt_access_token')
+        user = auth_data.get('user')
+        product_raw_data = self.get_product_raw_data(author_id=user.id) # type: ignore
+    
+        self.make_product(name='repeated_name')
+
+        product_raw_data['name'] = 'repeated_name'
         
-    #     self.assertEqual(
-    #         response.data.get('name')[0],
-    #         'This field is required.'
-    #     )
+        response = self.client.post(
+            self.get_product_list_reverse_url(),
+            data=product_raw_data,
+            HTTP_AUTHORIZATION=f'Bearer {jwt_access_token}'
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+        self.assertEqual(
+            str(response.data.get('name')[0]),  # type: ignore
+            'product with this name already exists.'
+        )
+        
+    @parameterized.expand([
+        ('name', 'a' * 101, 'Ensure this field has no more than 100 characters.'),
+        ('name', 'b' * 4, 'name must have at least 5 characters'),
+        ('price', '123456789', 'Ensure that there are no more than 8 digits in total.'),
+    ])
+    def test_product_field_length_validation(self, field, value, expected_error):
+        auth_data = self.get_auth_data()
+        jwt_access_token = auth_data.get('jwt_access_token')
+        user = auth_data.get('user')
+        product_raw_data = self.get_product_raw_data(author_id=user.id)  # type: ignore
+        
+        product_raw_data[field] = value
+        
+        response = self.client.post(
+            self.get_product_list_reverse_url(),
+            data=product_raw_data,
+            HTTP_AUTHORIZATION=f'Bearer {jwt_access_token}'
+        )
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            str(response.data.get(field)[0]),  # type: ignore
+            expected_error
+        )
+        
+    def test_product_field_validators(self):
+        auth_data = self.get_auth_data()
+        jwt_access_token = auth_data.get('jwt_access_token')
+        user = auth_data.get('user')
+        product_raw_data = self.get_product_raw_data(author_id=user.id)  # type: ignore
+        
+        product_raw_data['name'] = 'equal value'
+        product_raw_data['description'] = 'equal value'
+        
+        response = self.client.post(
+            self.get_product_list_reverse_url(),
+            data=product_raw_data,
+            HTTP_AUTHORIZATION=f'Bearer {jwt_access_token}'
+        )
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            str(response.data.get('name')[0]),  # type: ignore
+            'Cannot be equal to description'
+        )
+        self.assertEqual(
+            str(response.data.get('description')[0]),  # type: ignore
+            'Cannot be equal to name'
+        )
     
 
 class LoggedInUserAPITest(ProductAPITestMixin, APITestCase):
-    def test_logged_in_user_api_view(self):
+    def test_logged_in_user_can_access_personal_url(self):
         auth_data = self.get_auth_data()
         jwt_access_token = auth_data.get('jwt_access_token')
 
@@ -175,4 +258,9 @@ class LoggedInUserAPITest(ProductAPITestMixin, APITestCase):
             "email": auth_data['user'].email,
         }
         self.assertEqual(response.data, expected_data) # type: ignore
+        
+    def test_not_logged_user_cannot_access_personal_url(self):
+        response = self.client.get(reverse('products:products_api_me'))
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('Authentication credentials were not provided.', str(response.data))  # type: ignore
         

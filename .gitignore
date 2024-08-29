@@ -131,4 +131,4 @@ static/
 extra_txts.txt
 fixture.json
 bin
-staticfiles/
+staticfiles

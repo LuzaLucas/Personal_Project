@@ -3,7 +3,7 @@
 {% block content %}
     <form method="post">
         {% csrf_token %}
-        <p>Are you sure you wan't to delete product: "{{ object }}" ?</p>
+        <p>Are you sure you want to delete product: "{{ object }}" ?</p>
         {% buttons %}
             <button type="submit" class="btn btn-danger">Confirm</button>
             <button type="button" class="btn btn-warning">
